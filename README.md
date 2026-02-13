@@ -1,6 +1,6 @@
 # DrQ-v2 Reproduction & N-step Ablation Study
 
-**Author:** KevinBangbang | **Course:** CSC415
+**Author:** Bangcheng Wang | **Course:** CSC415
 
 This repository is a reproduction of the DrQ-v2 algorithm based on the [official codebase](https://github.com/facebookresearch/drqv2). The main contribution is an **n-step return ablation study** on `cartpole_swingup` and `walker_walk` tasks from the DeepMind Control Suite.
 
