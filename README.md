@@ -1,4 +1,42 @@
+# DrQ-v2 Reproduction & N-step Ablation Study
 
+**Author:** KevinBangbang | **Course:** CSC415
+
+This repository is a reproduction of the DrQ-v2 algorithm based on the [official codebase](https://github.com/facebookresearch/drqv2). The main contribution is an **n-step return ablation study** on `cartpole_swingup` and `walker_walk` tasks from the DeepMind Control Suite.
+
+## What's Changed (vs. Official Repo)
+
+The original code targets Python 3.8 + mujoco_py (deprecated). We updated it to run on modern environments:
+
+- **Python 3.12 + mujoco 3.x + dm_control 1.x** (no license required)
+- **hydra-core 1.3.2** (1.1.0 incompatible with Python 3.12; added `version_base='1.1'`)
+- **Windows support** (skip `MUJOCO_GL=egl` on Windows)
+- **dtype fix** for newer dm_control (cast action/reward/discount to float32)
+- **replay_buffer fix** for numpy/Python 3.12 compatibility
+- **Ablation script** (`scripts/run_ablation.sh`) for n-step experiments
+
+## Ablation: N-step Returns
+
+| Config | Values |
+|---|---|
+| Tasks | `cartpole_swingup`, `walker_walk` |
+| N-step | 1, 3, 5, 10 |
+| Seeds | 1, 2, 3 |
+| Frames | cartpole: 500K, walker: 1M |
+
+```sh
+# Dry run (print commands only)
+bash scripts/run_ablation.sh --dry-run
+
+# Run all experiments
+bash scripts/run_ablation.sh
+```
+
+---
+
+*Below is the original README from the DrQ-v2 authors.*
+
+---
 
 # DrQ-v2: Improved Data-Augmented RL Agent
 
@@ -62,21 +100,52 @@ Please also cite our original paper:
 }
 ```
 
-## Instructions
+## Instructions (Updated)
 
-Install [MuJoCo](http://www.mujoco.org/) if it is not already the case:
+MuJoCo 3.x is free and open-source. No license file is needed.
+
+### Setup
+```sh
+python -m venv venv
+# Linux/macOS
+source venv/bin/activate
+# Windows
+venv\Scripts\activate
+
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+pip install mujoco dm_control hydra-core==1.3.2 omegaconf==2.3.0 hydra-submitit-launcher \
+    numpy termcolor imageio imageio-ffmpeg tb-nightly pandas matplotlib opencv-python-headless
+```
+
+On Linux, also install system dependencies:
+```sh
+sudo apt update && sudo apt install libosmesa6-dev libgl1-mesa-glx libglfw3
+```
+
+### Train
+```sh
+# Note: use "task@_global_=" syntax with hydra 1.3
+python train.py "task@_global_=quadruped_walk"
+
+# On Windows, add replay_buffer_num_workers=1
+python train.py "task@_global_=cartpole_swingup" replay_buffer_num_workers=1
+```
+
+### Monitor
+```sh
+tensorboard --logdir exp_local
+```
+
+### Original Instructions (deprecated)
+
+<details>
+<summary>Click to expand original setup (Python 3.8 + mujoco_py)</summary>
+
+Install [MuJoCo](http://www.mujoco.org/):
 
 * Obtain a license on the [MuJoCo website](https://www.roboti.us/license.html).
 * Download MuJoCo binaries [here](https://www.roboti.us/index.html).
 * Unzip the downloaded archive into `~/.mujoco/mujoco200` and place your license key file `mjkey.txt` at `~/.mujoco`.
-* Use the env variables `MUJOCO_PY_MJKEY_PATH` and `MUJOCO_PY_MUJOCO_PATH` to specify the MuJoCo license key path and the MuJoCo directory path.
-* Append the MuJoCo subdirectory bin path into the env variable `LD_LIBRARY_PATH`.
-
-Install the following libraries:
-```sh
-sudo apt update
-sudo apt install libosmesa6-dev libgl1-mesa-glx libglfw3
-```
 
 Install dependencies:
 ```sh
@@ -88,11 +157,7 @@ Train the agent:
 ```sh
 python train.py task=quadruped_walk
 ```
-
-Monitor results:
-```sh
-tensorboard --logdir exp_local
-```
+</details>
 
 ## License
 The majority of DrQ-v2 is licensed under the MIT license, however portions of the project are available under separate license terms: DeepMind is licensed under the Apache 2.0 license.

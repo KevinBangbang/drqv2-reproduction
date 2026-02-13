@@ -7,7 +7,8 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 import os
 os.environ['MKL_SERVICE_FORCE_INTEL'] = '1'
-os.environ['MUJOCO_GL'] = 'egl'
+if os.name != 'nt':
+    os.environ['MUJOCO_GL'] = 'egl'
 
 from pathlib import Path
 
@@ -204,7 +205,7 @@ class Workspace:
             self.__dict__[k] = v
 
 
-@hydra.main(config_path='cfgs', config_name='config')
+@hydra.main(config_path='cfgs', config_name='config', version_base='1.1')
 def main(cfg):
     from train import Workspace as W
     root_dir = Path.cwd()

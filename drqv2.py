@@ -237,9 +237,12 @@ class DrQV2Agent:
         obs, action, reward, discount, next_obs = utils.to_torch(
             batch, self.device)
 
-        # augment
+        # augment and ensure float32
         obs = self.aug(obs.float())
         next_obs = self.aug(next_obs.float())
+        action = action.float()
+        reward = reward.float()
+        discount = discount.float()
         # encode
         obs = self.encoder(obs)
         with torch.no_grad():

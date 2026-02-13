@@ -50,7 +50,7 @@ class ReplayBufferStorage:
             value = time_step[spec.name]
             if np.isscalar(value):
                 value = np.full(spec.shape, value, spec.dtype)
-            assert spec.shape == value.shape and spec.dtype == value.dtype
+            value = np.array(value, dtype=spec.dtype).reshape(spec.shape)
             self._current_episode[spec.name].append(value)
         if time_step.last():
             episode = dict()
@@ -165,7 +165,7 @@ class ReplayBuffer(IterableDataset):
 
 
 def _worker_init_fn(worker_id):
-    seed = np.random.get_state()[1][0] + worker_id
+    seed = int(np.random.get_state()[1][0]) + worker_id
     np.random.seed(seed)
     random.seed(seed)
 
